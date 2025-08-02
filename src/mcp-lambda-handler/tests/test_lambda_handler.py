@@ -440,6 +440,17 @@ def test_handle_request_ping():
     assert resp['headers']['Content-Type'] == 'application/json'
 
 
+def test_lambda_event_and_context_properties():
+    """Test that lambda_event and lambda_context properties are set after handle_request."""
+    handler = MCPLambdaHandler('test-server')
+    req = {'jsonrpc': '2.0', 'id': 1, 'method': 'ping'}
+    event = make_lambda_event(req)
+    context = MagicMock()
+    handler.handle_request(event, context)
+    assert handler.lambda_event == event
+    assert handler.lambda_context == context
+
+
 def test_handle_request_delete_session():
     """Test handle_request for deleting a session."""
     handler = MCPLambdaHandler('test-server', session_store=NoOpSessionStore())

@@ -102,6 +102,9 @@ class MCPLambdaHandler:
         self.tool_implementations: Dict[str, Callable] = {}
         self.resources: Dict[str, Resource] = {}
 
+        self._lambda_event = None
+        self._lambda_context = None
+
         # Configure session storage
         if session_store is None:
             self.session_store = NoOpSessionStore()
@@ -158,6 +161,24 @@ class MCPLambdaHandler:
 
         # Save back to storage
         return self.set_session(session.raw())
+
+    @property
+    def lambda_event(self) -> Dict:
+        """Get the current event data.
+
+        Returns:
+            The event dictionary passed to the handler
+        """
+        return self._lambda_event
+
+    @property
+    def lambda_context(self) -> Any:
+        """Get the current context object.
+
+        Returns:
+            The context object passed to the handler
+        """
+        return self._lambda_context
 
     def tool(self):
         """Create a decorator for a function as an MCP tool.
@@ -393,6 +414,10 @@ class MCPLambdaHandler:
         """Handle an incoming Lambda request."""
         request_id = None
         session_id = None
+
+        # Set the event and context for the handler
+        self._lambda_event = event
+        self._lambda_context = context
 
         try:
             # Log the full event for debugging
